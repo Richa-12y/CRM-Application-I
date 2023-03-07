@@ -14,9 +14,7 @@
  */
 
 const User = require("../model/user.model");
-const authConfig = require("../configs/server.config");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 exports.signup = async (req, res) => {
   /**
@@ -36,6 +34,8 @@ exports.signup = async (req, res) => {
     };
     /**
      * I need to set the user status
+     * if user tyoe is CUSTOMER or nor given in that seen it will get approved
+     * rest of that pending
      */
     if (!userObj.userType || userObj.userType == "CUSTOMER") {
       userObj.userStatus = "APPROVED";
@@ -62,7 +62,7 @@ exports.signup = async (req, res) => {
   } catch (error) {
     console.log("Error while registering user ", error.message);
     res.status(500).send({
-      message: "Some internal server error",
+      message: `${error}`,
     });
   }
 };
