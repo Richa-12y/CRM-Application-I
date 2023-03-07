@@ -7,8 +7,8 @@ const serverConfig = require("./configs/server.config");
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const User = require("./models/user.model");
-const bcrypt = require("bcryptjs");
+const User = require("./model/user.model");
+const bcrypt = require("bcrypt");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // false  pure string
@@ -25,9 +25,7 @@ db.on("error", () => {
   console.log("Error while connecting to DB");
 });
 
-db.once("open", () => {
-  console.log("Connected to database");
-
+db.once("open", async () => {
   /**
    * Write the logic to clean and initialize the db
    */
@@ -47,8 +45,8 @@ async function init() {
   const user = await User.create({
     name: "Richa",
     userId: "admin",
-    password: bcrypt.hashSync("Welcome123", 8),
-    email: "kricha000@gmail.com",
+    password: bcrypt.hashSync("Welcome1", 8),
+    email: "kricha000@gmail.coom",
     userType: "ADMIN",
   });
   console.log(user);
