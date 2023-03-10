@@ -15,6 +15,8 @@
 
 const User = require("../model/user.model");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const authConfig = require("../configs/auth.config");
 
 exports.signup = async (req, res) => {
   /**
@@ -46,6 +48,7 @@ exports.signup = async (req, res) => {
      * Insert  the data in the databse
      */
     const savedUser = await User.create(userObj);
+
     const postResponse = {
       name: savedUser.name,
       userId: savedUser.userId,
@@ -61,6 +64,83 @@ exports.signup = async (req, res) => {
     res.status(201).send(postResponse);
   } catch (error) {
     console.log("Error while registering user ", error.message);
+    res.status(500).send({
+      message: `${error}`,
+    });
+  }
+};
+
+/**
+ * Controller code for signin
+ */
+
+exports.signin = async (req, res) => {
+  try {
+    /**
+     * 1 Step.Read the userId and password from the requset
+     */
+    const userIdFromReq = req.body.userId;
+    const password = req.body.password;
+    /**
+     * 2 Step.Ensure the userId is valid
+     *  this is futurestice even so we can used async await(promise)
+     */
+
+    const userSaved = await User.findOne({ userId: userIdFromReq });
+
+    if (!userSaved) {
+      return res.status(401).send({
+        message: "User id passed is not correct ",
+      });
+    }
+    /**
+     * 3 Step.Read the password passed is valid
+     * plain texted password
+     * in DB we have encypt password we encypt the password using bcrypt
+     */
+
+    const isValidPassword = bcrypt.compareSync(password, userSaved.password);
+
+    if (!isValidPassword) {
+      return res.status(401).send({
+        message: "Incorrect password !",
+      });
+    }
+    /**
+     * 4 Step.We need to generate the access token(JWT based)
+     */
+
+    const token = jwt.sign(
+      {
+        id: userSaved.userId,
+      },
+      authConfig.secret,
+      {
+        expiresIn: 1000,
+      }
+    );
+
+    /**
+     * 6 we need to check if the user is valid user(approved state)
+     */
+    if (userSaved.userStatus != "APPROVED") {
+      return res.status(403).send({
+        message: "User is not approved for login",
+      });
+    }
+    /**
+     * 5 Step.Send the response back
+     */
+    res.status(200).send({
+      name: userSaved.name,
+      userId: userSaved.userId,
+      email: userSaved.email,
+      userType: userSaved.userType,
+      userStatus: userSaved.userStatus,
+      accessToken: token,
+    });
+  } catch (error) {
+    console.log("Error while login", error.message);
     res.status(500).send({
       message: `${error}`,
     });
