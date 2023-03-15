@@ -20,9 +20,9 @@ module.exports = (app) => {
    *
    * PUT /crm/api/v1/users/vish01  - > user Controller , update method
    */
-  //   app.put(
-  //     "/crm/api/v1/users/:id",
-  //     [auth.verifyToken, auth.isAdminOrOwner],
-  //     userController.update
-  //   );
+  app.put(
+    "/crm/api/v1/users/:id",
+    [auth.verifyToken, auth.isAdminOrOwner],
+    userController.update
+  );
 };

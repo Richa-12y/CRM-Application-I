@@ -55,9 +55,22 @@ const isAdmin = async (req, res, next) => {
   }
 };
 
+/**
+ * Middleware to check if the user is admin or the owner
+ */
+
+const isAdminOrOwner = async (req, res, next) => {
+  const user = await User.findOne({ userId: req.userId });
+  if (user.userType == "ADMIN" || user.userId == req.params.id) {
+    next();
+  } else {
+    return res.status(403).send({
+      message: "Only ADMIN or owner of the resouse is allowed to update",
+    });
+  }
+};
 module.exports = {
   verifyToken: verifyToken,
   isAdmin: isAdmin,
-  //   isAdminOrOwner: isAdminOrOwner,
-  // };
+  isAdminOrOwner: isAdminOrOwner,
 };
