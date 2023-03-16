@@ -60,8 +60,8 @@ const isAdmin = async (req, res, next) => {
  */
 
 const isAdminOrOwner = async (req, res, next) => {
-  const user = await User.findOne({ userId: req.userId });
-  if (user.userType == "ADMIN" || user.userId == req.params.id) {
+  const callingUser = await User.findOne({ userId: req.userId });
+  if (callingUser.userType == "ADMIN" || callingUser.userId == req.params.id) {
     next();
   } else {
     return res.status(403).send({

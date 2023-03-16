@@ -38,3 +38,43 @@ exports.findAll = async (req, res) => {
     });
   }
 };
+/**
+ * Controller Methode to update the user recoder
+ * 1.Only ADMIN and the owner should be allowed to update the records
+ * --this has to be done in the middleware
+ */
+
+exports.update = async (req, res) => {
+  try {
+    /**
+     * Fetch the User object if it's present
+     */
+    const user = await User.findOne({ userId: req.params.id });
+    /**
+     * Update the user object based on the request
+     */
+    user.name = req.body.name != undefined ? req.body.name : user.name;
+    user.userStatus =
+      req.body.userStatus != undefined ? req.body.userStatus : user.userStatus;
+
+    user.userType =
+      req.body.userType != undefined ? req.body.userType : user.userType;
+
+    /**
+     * save the user object and return the updated object
+     */
+    const updatedUser = await user.save();
+    res.status(200).send({
+      name: updatedUser.name,
+      userId: updatedUser.userId,
+      userStatus: updatedUser.userStatus,
+      email: updatedUser.email,
+      userType: updatedUser.userType,
+    });
+  } catch (error) {
+    console.log("Error while update the user", error.message);
+    res.status(500).send({
+      message: "Internal Server Error while updating the record",
+    });
+  }
+};
