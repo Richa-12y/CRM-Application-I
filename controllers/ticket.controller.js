@@ -5,7 +5,7 @@
  *    2. Req body is validated -- Middlware
  *    3. Insert the ticket body
  */
-const userModel = require("../models/user.model");
+const userModel = require("../model/user.model");
 const ticketModel = require("../model/ticket.model");
 
 exports.createTicket = async (req, res) => {
@@ -39,8 +39,8 @@ exports.createTicket = async (req, res) => {
       /**
        * Need to update customer document
        */
-      const customer = await userModel.findOne({ userId: req.userType });
-      customer.ticketCreated.push(ticketCreated._id);
+      const customer = await userModel.findOne({ userId: req.userId });
+      customer.ticketsCreated.push(ticketCreated._id);
       await customer.save();
       /**
        * Update the Engneer document if assigned
@@ -54,5 +54,42 @@ exports.createTicket = async (req, res) => {
     }
   } catch (error) {
     console.log("Error while creating Ticket", error.message);
+  }
+};
+
+/**
+ * Method to fetch all the users
+ */
+
+exports.getTickets = async (req, res) => {
+  try {
+    /**
+     * so that dependeing on the user,correct list of tickets and returned
+     */
+    /**
+     * First fetch the details of the user who is making the call
+     */
+    const userId = req.userId;
+    const callingUserObj = await userModel.findOne({ userId: userId });
+    const queryObj = {};
+    /**
+     * Then make the query object based on the user type
+     */
+    if (callingUserObj.userType == "CUSTOMER") {
+      queryObj.reporter = req.userId;
+    } else if (callingUserObj.userType == "ENGINEER") {
+      queryObj.$or = [{ reporter: req.userId }, { assignee: req.userId }];
+      console.log(queryObj);
+    }
+    /**
+     * Finally return the result
+     */
+    const tickets = await ticketModel.find(queryObj);
+    return res.status(200).send(tickets);
+  } catch (error) {
+    console.log("Error while fetching tickets", error.message);
+    res.status(500).send({
+      message: "Internal server Error",
+    });
   }
 };

@@ -1,3 +1,6 @@
+const User = require("../model/user.model");
+const Ticket = require("../model/ticket.model");
+
 const validateTicketReqBody = (req, res, next) => {
   /**
    * Check if body.req.title is not present it is bad request
@@ -30,4 +33,8 @@ const validateTicketReqBody = (req, res, next) => {
     }
   }
   next();
+};
+
+module.exports = {
+  validateTicketReqBody: validateTicketReqBody,
 };
