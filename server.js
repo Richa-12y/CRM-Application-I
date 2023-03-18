@@ -57,6 +57,7 @@ async function init() {
  */
 require("./router/auth.routes")(app);
 require("./router/user.routes")(app);
+require("./router/ticket.routes")(app);
 
 /**
  * Coneceting with port 3013
